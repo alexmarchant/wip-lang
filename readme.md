@@ -1,1 +1,1 @@
-I don't think javascript is a good language for this. So many stupid bugs that would have been fixed with a decent compiler, and i don't think much dev speed was saved tbh.
+I don't think javascript is a good language for this. So many stupid bugs that would have been fixed with a decent compiler, and any dev speed that would have been saved was lost to bugs.
