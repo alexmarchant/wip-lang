@@ -1,11 +1,11 @@
-import Token, { TokenType, Keywords } from './token.js';
+const { Token, TokenType, Keywords } = require('./token.js');
 
-export default class Scanner {
+class Scanner {
   constructor(source) {
     this.source = source
     this.current = 0
     this.start = 0
-    this.line = 0
+    this.line = 1
     this.tokens = []
   }
 
@@ -36,32 +36,27 @@ export default class Scanner {
         return this.addToken(TokenType.LeftBrace)
       case '}':
         return this.addToken(TokenType.RightBrace)
+      case '+':
+        return this.addToken(TokenType.Plus)
+      case '-':
+        return this.addToken(TokenType.Minus)
       case ' ':
       case '\r':
       case '\t':
         return
       case '\n':
+        const token = this.addToken(TokenType.LineBreak)
         this.line++
-        return this.addToken(TokenType.LineBreak)
+        return token
       default:
         if (this.isDigit(char)) {
-          this.number()
+          return this.number()
         } else if (this.isAlpha(char)) {
-          this.identifier()
+          return this.identifier()
         } else {
-          console.log(this)
-          throw new Error(`Unexpected char: ${this.line}`)
+          throw new Error(`Unexpected char: ${char}`)
         }
     }
-  }
-
-  isAtEnd() {
-    return this.current >= this.source.length
-  }
-
-  advance() {
-    this.current++
-    return this.source[this.current - 1]
   }
 
   addToken(type) {
@@ -96,16 +91,41 @@ export default class Scanner {
     }
 
     const source = this.source.slice(this.start, this.current)
-    const keyword = Keywords[source]
-    if (keyword) {
-      this.addToken(keyword)
+    const tokenType = Keywords[source]
+    if (tokenType) {
+      this.addToken(tokenType)
     } else {
       this.addToken(TokenType.Identifier)
     }
   }
 
   number(char) {
-    throw new Error('TODO')
+    let type = TokenType.Int
+
+    // Start scanning
+    while (this.isDigit(this.peek())) {
+      this.advance()
+    }
+  
+    // Its a float, scan past decimal
+    if (this.peek() === '.' && this.isDigit(this.peekNext())) {
+      type = TokenType.Float
+      this.advance()
+  
+      while (this.isDigit(this.peek())) {
+        this.advance()
+      }
+    }
+  
+    // Parse value
+    const source = this.source.slice(this.start, this.current)
+    let value
+    if (type === TokenType.Int) {
+      value = parseInt(source, 10)
+    } else {
+      value = parseFloat(source)
+    }
+    this.addTokenValue(type, value)
   }
 
   peek() {
@@ -114,4 +134,14 @@ export default class Scanner {
     }
     return this.source[this.current]
   }
+
+  isAtEnd() {
+    return this.current >= this.source.length
+  }
+
+  advance() {
+    this.current++
+    return this.source[this.current - 1]
+  }
 }
+module.exports = Scanner

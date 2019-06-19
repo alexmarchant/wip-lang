@@ -1,9 +1,9 @@
 {
   "name": "wip-lang",
   "private": true,
-  "type": "module",
   "scripts": {
-    "start": "node --experimental-modules index.js"
+    "start": "node index.js",
+    "test": "jest"
   },
   "devDependencies": {
     "jest": "^24.8.0"
