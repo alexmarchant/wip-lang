@@ -11,6 +11,8 @@ const TokenType = {
   Minus: 'Minus',
   Int: 'Int',
   Float: 'Float',
+  Comma: 'Comma',
+  String: 'String',
   Fn: 'Fn',
   EOF: 'EOF'
 }
@@ -24,7 +26,7 @@ const Keywords = {
 exports.Keywords = Keywords
 
 function validateType(type) {
-  if (!type in TokenType) {
+  if (!TokenType.hasOwnProperty(type)) {
     throw new Error(`Invalid TokenType: ${type}`)
   }
 }

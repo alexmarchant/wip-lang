@@ -1,16 +1,18 @@
 const {
   TokenType,
-  validateType
+  validateType,
 } = require('../scanner/token.js')
 const {
   ModuleStmt,
   FunctionStmt,
   ExpressionStmt,
-  ReturnStmt
+  ReturnStmt,
 } = require('../nodes/statement.js')
 const {
   BinaryExpr,
-  LiteralExpr
+  LiteralExpr,
+  CallExpr,
+  VarExpr,
 } = require('../nodes/expression.js')
 
 class Parser {
@@ -83,7 +85,7 @@ class Parser {
     const keyword = this.previous()
     let value
 
-    if (!this.isAtEnd() || !this.match(TokenType.LineBreak)) {
+    if (!this.isAtEnd() && !this.match(TokenType.LineBreak)) {
       value = this.expression()
     }
 
@@ -100,20 +102,56 @@ class Parser {
   }
 
   binary() {
-    const left = this.primary()
+    const left = this.callExpr()
 
     if (this.match(TokenType.Plus, TokenType.Minus)) {
       const op = this.previous()
-      const right = this.primary()
+      const right = this.callExpr()
       return new BinaryExpr(left, op, right)
     }
 
     return left
   }
 
+  callExpr() {
+    let expr = this.primary()
+
+    if (this.match(TokenType.LeftParen)) {
+      expr = this.finishCall(expr)
+    }
+
+    return expr
+  }
+
+  finishCall(callee) {
+    // Build args
+    const args = []
+    if (!this.check(TokenType.RightParen)) {
+      while(true) {
+        const expr = this.expression()
+        args.push(expr)
+        if (!this.match(TokenType.Comma)) {
+          break
+        }
+      }
+    }
+  
+    // Check for closing paren
+    const paren = this.consume(TokenType.RightParen, "Expect ')' after arguments.")
+  
+    return new CallExpr(
+      callee,
+      paren,
+      args,
+    )
+  }
+
   primary() {
-    if (this.match(TokenType.Int, TokenType.Float)) {
+    if (this.match(TokenType.Int, TokenType.Float, TokenType.String)) {
       return new LiteralExpr(this.previous().literal)
+    }
+    if (this.match(TokenType.Identifier)) {
+      return new VarExpr(this.previous())
     }
 
     this.error(this.peek(), 'Expected expression.')
@@ -129,7 +167,10 @@ class Parser {
 
   match(...types) {
     for (let i = 0; i < types.length; i++) {
-      if (this.check(types[i])) {
+      const type = types[i]
+      validateType(type)
+
+      if (this.check(type)) {
         this.advance()
         return true
       }
@@ -167,7 +208,7 @@ class Parser {
     if (token.type === TokenType.EOF) {
       this.report(token.line, 'at end', message)
     } else {
-      this.report(token.line, `at '${token.source}'`, message)
+      this.report(token.line, `at ${JSON.stringify(token.source)}`, message)
     }
   }
 

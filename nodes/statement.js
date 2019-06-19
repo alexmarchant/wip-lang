@@ -17,7 +17,7 @@ class ModuleStmt extends Statement {
   }
 
   accept(visitor) {
-    visitor.visitModuleStmt(this)
+    return visitor.visitModuleStmt(this)
   }
 }
 exports.ModuleStmt = ModuleStmt
@@ -31,7 +31,7 @@ class FunctionStmt extends Statement {
   }
 
   accept(visitor) {
-    visitor.visitFunctionStmt(this)
+    return visitor.visitFunctionStmt(this)
   }
 }
 exports.FunctionStmt = FunctionStmt
@@ -43,7 +43,7 @@ class ExpressionStmt extends Statement {
   }
 
   accept(visitor) {
-    visitor.visitExpressionStmt(this)
+    return visitor.visitExpressionStmt(this)
   }
 }
 exports.ExpressionStmt = ExpressionStmt
@@ -56,7 +56,7 @@ class ReturnStmt extends Statement {
   }
 
   accept(visitor) {
-    visitor.visitReturnStmt(this)
+    return visitor.visitReturnStmt(this)
   }
 }
 exports.ReturnStmt = ReturnStmt

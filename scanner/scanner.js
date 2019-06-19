@@ -40,6 +40,8 @@ class Scanner {
         return this.addToken(TokenType.Plus)
       case '-':
         return this.addToken(TokenType.Minus)
+      case ',':
+        return this.addToken(TokenType.Comma)
       case ' ':
       case '\r':
       case '\t':
@@ -48,6 +50,8 @@ class Scanner {
         const token = this.addToken(TokenType.LineBreak)
         this.line++
         return token
+      case '"':
+        return this.string()
       default:
         if (this.isDigit(char)) {
           return this.number()
@@ -133,6 +137,13 @@ class Scanner {
       return String.fromCharCode(0)
     }
     return this.source[this.current]
+  }
+
+  peekNext() {
+    if (this.current + 1 >= this.source.length) {
+      return String.fromCharCode(0)
+    }
+    return this.source[this.current + 1]
   }
 
   isAtEnd() {

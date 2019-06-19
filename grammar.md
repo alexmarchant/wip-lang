@@ -33,7 +33,8 @@ block -> "{" statement* "}";
 
 ```
 expression -> addition;
-addition -> primary ( ("+" | "-") primary )*;
+addition -> call ( ("+" | "-") call )*;
+call -> primary ( "(" arguments? ")" )*;
 primary -> INT, FLOAT;
 ```
 
